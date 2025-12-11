@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Між Нами 18+ — Витягни картку</title>
+
+<style>
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #0d1028;
+  font-family: Arial, sans-serif;
+  color: white;
+}
+.wrap {
+  text-align: center;
+}
+.card-slot {
+  width: 850px;
+  height: 520px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 14px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 0 34px rgba(0,0,0,0.6);
+  margin-bottom: 20px;
+}
+img.card {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 12px;
+  opacity: 0;
+  transform: rotate(-90deg);
+  transition: opacity 0.4s ease, transform 0.45s ease;
+  pointer-events: none;
+  background-color: black;
+}
+
+img.card.visible {
+  opacity: 1;
+  transform: rotate(0deg);
+}
+button {
+  background: linear-gradient(90deg,#ff4d6d,#ff8fab);
+  border: none;
+  padding: 12px 20px;
+  border-radius: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  margin: 6px;
+  color: white;
+  font-size: 16px;
+}
+button:hover {
+  opacity: 0.85;
+}
+#hint {
+  margin-top: 12px;
+  font-size: 14px;
+  opacity: 0.9;
+}
+</style>
+</head>
+
+<body>
+<div class="wrap">
+    <h1>Між Нами 18+ — Витягни картку</h1>
+
+    <div class="card-slot">
+        <img id="card" class="card" src="" alt="card">
+    </div>
+
+    <button id="draw">Витягнути картку</button>
+    <button id="reset">Перемішати</button>
+
+    <div id="hint">Карток у колоді: 0</div>
+</div>
+
+<script>
+/* ШЛЯХ ДО ТВОЄЇ ПАПКИ */
+const basePath = "mizhnamu18/";
+
+/* Генеруємо список 1.png – 150.png */
+const IMAGES = [];
+for (let i = 1; i <= 150; i++) {
+    IMAGES.push(i + ".png");
+}
+
+/* Колода */
+let deck = [];
+
+function shuffle(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+}
+
+function resetDeck() {
+    deck = shuffle(IMAGES.slice());
+    document.getElementById("hint").textContent =
+        "Карток у колоді: " + deck.length;
+}
+
+resetDeck();
+
+const card = document.getElementById("card");
+let animating = false;
+
+function nextCard() {
+    if (deck.length === 0) resetDeck();
+    return deck.pop();
+}
+
+function showNext() {
+    if (animating) return;
+    animating = true;
+
+    const next = nextCard();
+    card.classList.remove("visible");
+
+    setTimeout(() => {
+        card.src = basePath + next;
+
+        card.onload = () => {
+            card.classList.add("visible");
+            document.getElementById("hint").textContent =
+                "Карток у колоді: " + deck.length;
+            animating = false;
+        };
+
+        card.onerror = () => {
+            alert("Не знайдено файл: " + next);
+            animating = false;
+        };
+
+    }, 300);
+}
+
+document.getElementById("draw").addEventListener("click", showNext);
+
+document.getElementById("reset").addEventListener("click", () => {
+    resetDeck();
+    card.classList.remove("visible");
+    card.src = "";
+});
+</script>
+
+</body>
+</html>
